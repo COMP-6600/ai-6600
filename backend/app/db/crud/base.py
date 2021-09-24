@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 # Database and formatting
 from fastapi.encoders import jsonable_encoder
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.orm import Session
 from app.db.base import Base
 
@@ -23,7 +24,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """ Create a new object of this model given a validated schema. """
         # Convert data to JSON and feed through model
         db_obj = data
-        if type(data) == CreateSchemaType:
+        if type(data) != DeclarativeMeta:
             db_obj = self.model(**(jsonable_encoder(data)))
 
         # Add to database and return
