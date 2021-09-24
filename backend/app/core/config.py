@@ -1,7 +1,7 @@
 import logging
 import os
 import secrets
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
 from pydantic import BaseSettings, PostgresDsn, validator
 
@@ -11,7 +11,9 @@ class Settings(BaseSettings):
     DEBUG: bool = os.environ.get("DEBUG") or True
 
     # Server
+    API_KEY: str = os.environ.get("API_KEY")  # for access control
     SECRET_KEY: str = os.environ.get("SECRET_KEY") or secrets.token_urlsafe(32)  # for JWT signing
+    ALGORITHM = 'HS256'  # for JTW security
     ACCESS_TOKEN_EXPIRATION: int = os.environ.get("ACCESS_TOKEN_EXPIRATION") or 60  # for auth on subsequent requests without spinup
 
     # Database

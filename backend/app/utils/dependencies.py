@@ -1,32 +1,31 @@
-# Date management, formatting, and typing support
-import arrow
-from typing import Generator, Union, Any
+# Dependencies
+from typing import Generator, Any
 
 # FastAPI and routes
 from fastapi import Depends, HTTPException, status
 
 # JWT and Security
-from app.core import security
 from app.core.config import settings
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt
-from jose.exceptions import JOSEError
+from jose import jwt  # noqa
+from jose.exceptions import JOSEError  # noqa
 
 # Database and CRUD
-from ..db.session import SessionLocal
+from app.db.session import SessionLocal
 from sqlalchemy.orm import Session
 
 # Model and schemas
-from app.db import schemas as schema
-from app.db import models as model
+# import app.db.schemas as schema
+# import app.db.models as model
+import app.db.structures as structure
 
 # Validation and Error Handling
-# import ..common.exceptions
-from pydantic import BaseModel, ValidationError
+# import app.utils.exceptions
+from pydantic import ValidationError
 
 
 # GLOBALS
-oauth2_schema = OAuth2PasswordBearer(tokenUrl=f"/api/instance")
+oauth2_schema = OAuth2PasswordBearer(tokenUrl=f"/api/auth/instance")
 
 
 def get_db() -> Generator:
@@ -37,19 +36,15 @@ def get_db() -> Generator:
         db.close()  # noqa
 
 
-def unpack_token(token: str) -> schema.TokenPayload:
-    """ Parses received token and returns the payload. A JWT exception is passed down the chain on failure.
-
-    :param token: the token received from the client
-    :return: the token payload
-    """
+def unpack_token(token: str) -> structure.TokenPayload:
+    """ Parses received token and returns the payload. A JWT exception is passed down the chain on failure. """
     try:
         payload = jwt.decode(
-            token,
-            settings.SECRET_KEY,
-            algorithms=[security.ALGORITHM]
+            token=token,
+            key=settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM]
         )
-        return schema.TokenPayload(**payload)
+        return structure.TokenPayload(**payload)
     except (JOSEError, ValidationError) as e:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -57,17 +52,22 @@ def unpack_token(token: str) -> schema.TokenPayload:
         )
 
 
-def invalidate_token(token: str = Depends(oauth2_schema), db: Session = Depends(get_db)) -> bool:
-    """ Expire token to force API validation again """
+def validate_api_key(key: str) -> bool:
+    """ Uses API key to validate user. """
+    return key == settings.API_KEY
+
+
+def invalidate_token(token: str = Depends(oauth2_schema), db: Session = Depends(get_db)) -> bool:  # noqa
+    """ Expire token to force API validation again. """
     pass
 
 
-def get_session_from_token(token: str = Depends(oauth2_schema), db: Session = Depends(get_db)) -> Any:
-    """ Obtain the user referenced in the session token if one exist """
+def get_session_from_token(token: str = Depends(oauth2_schema), db: Session = Depends(get_db)) -> Any:  # noqa
+    """ Obtain the user referenced in the session token if one exists. """
     # Unpack and parse token
 
 
-def get_session_from_api_key(token: str = Depends(oauth2_schema), db: Session = Depends(get_db)) -> Any:
-    """ Obtain the user referenced in the session token if one exist """
+def get_session_from_api_key(token: str = Depends(oauth2_schema), db: Session = Depends(get_db)) -> Any:  # noqa
+    """ Obtain the user referenced in the session token if one exists. """
     # Unpack and parse token
     pass
