@@ -11,6 +11,7 @@ import app.db.structures as structure
 from app.db.crud import db_authentication
 
 # Dependencies
+from pydantic import BaseModel, validator,  root_validator
 from uuid import uuid4
 from app.core import security
 from app.core.config import settings
@@ -30,14 +31,11 @@ router = APIRouter(
 # -------------------
 #   INITIALIZATION
 # -------------------
-
 @router.post('/instance', response_model=structure.Token)
 def get_instance(x_api_key: str = Header(None), db: Session = Depends(get_db)) -> dict[str, str]:
     """ Returns an access token if the correct API Key is provided. Returns a JWT to maintain session.
 
-    :param x_api_key: Corresponds to the api key passed as a header
-    :param db: database dependency
-    :return: an access token with the instance
+    **x_api_key** Corresponds to the api key passed as a header
     """
     # Verify key
     if not validate_api_key(x_api_key):
