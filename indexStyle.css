@@ -15,10 +15,12 @@
 @keyframes slideInBottom {
 	from {
 		opacity: 0;
+		margin-top: 2.2em;
 	}
 
 	to {
 		opacity: 1;
+		margin-top: 1.8em
 	}
 }
 
@@ -46,7 +48,7 @@ body {
 	font-size: 2.2em;
 	opacity: 0;
 	animation-name: slideInBottom;
-	animation-duration: 1s;
+	animation-duration: 0.9s;
 	animation-delay: 0.5s;
 	animation-fill-mode: forwards;
 }
@@ -55,16 +57,18 @@ body {
 	border: 2px solid #FF00FF;
 	margin-left: auto;
 	margin-right: auto;
-	width: 25em;
+	width: 10em;
 	margin-top: 10em;
 }
 
 #formCont form {
 	color: #C0D7BB;
-	font-color: 
-	margin: auto;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 #formCont input {
-	margin-left: 7em;
+	margin-left: auto;
+	margin-right: auto;
+	overflow: hidden;
 }
