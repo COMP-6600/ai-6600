@@ -1,0 +1,74 @@
+
+/*
+	Color Palette
+
+	#202030 - Raisin Black
+	#28502E - Hunter Green
+	#85BDA6 - Eton Blue
+	#BEDCFE - Beau Blue
+	#C0D7BB - Cambridge Blue
+*/
+
+
+/* animations */
+
+@keyframes slideInBottom {
+	from {
+		opacity: 0;
+		margin-top: 2.2em;
+	}
+
+	to {
+		opacity: 1;
+		margin-top: 1.8em
+	}
+}
+
+/* end animations */
+
+html {
+	font-family: sans-serif;
+}
+
+body {
+	background-color: #202030;
+	height: 38em;
+	border: 2px solid #00FFFF;
+}
+
+#header {
+	border: 2px solid #C0D7BB;
+	height: 6.5em;
+}
+
+#header h1 {
+	text-align: center;
+	color: #C0D7BB;
+	margin-top: 1.8em;
+	font-size: 2.2em;
+	opacity: 0;
+	animation-name: slideInBottom;
+	animation-duration: 0.9s;
+	animation-delay: 0.5s;
+	animation-fill-mode: forwards;
+}
+
+#formCont {
+	border: 2px solid #FF00FF;
+	margin-left: auto;
+	margin-right: auto;
+	width: 10em;
+	margin-top: 10em;
+}
+
+#formCont form {
+	color: #C0D7BB;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#formCont input {
+	margin-left: auto;
+	margin-right: auto;
+	overflow: hidden;
+}
