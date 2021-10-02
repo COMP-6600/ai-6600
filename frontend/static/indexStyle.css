@@ -15,12 +15,12 @@
 @keyframes slideInBottom {
 	from {
 		opacity: 0;
-		margin-top: 2.2em;
+		transform: translatey(1em);
 	}
 
 	to {
 		opacity: 1;
-		margin-top: 1.8em
+		transform:  translatey(0em);
 	}
 }
 
@@ -33,42 +33,42 @@ html {
 body {
 	background-color: #202030;
 	height: 38em;
-	border: 2px solid #00FFFF;
 }
 
 #header {
-	border: 2px solid #C0D7BB;
 	height: 6.5em;
 }
 
 #header h1 {
 	text-align: center;
 	color: #C0D7BB;
-	margin-top: 1.8em;
 	font-size: 2.2em;
+	margin-top: 1.5em;
 	opacity: 0;
 	animation-name: slideInBottom;
-	animation-duration: 0.9s;
+	animation-duration: 1.2s;
 	animation-delay: 0.5s;
 	animation-fill-mode: forwards;
 }
 
 #formCont {
-	border: 2px solid #FF00FF;
 	margin-left: auto;
 	margin-right: auto;
-	width: 10em;
+	width: 100%;
+	opacity: 0;
 	margin-top: 10em;
+	display: block;
+	text-align: center;
+	animation-name: slideInBottom;
+	animation-duration: 1.5s;
+	animation-delay: 0.8s;
+	animation-fill-mode: forwards;
 }
 
 #formCont form {
 	color: #C0D7BB;
-	margin-left: auto;
-	margin-right: auto;
 }
 
 #formCont input {
-	margin-left: auto;
-	margin-right: auto;
 	overflow: hidden;
 }
