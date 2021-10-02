@@ -1,5 +1,7 @@
 # Dependencies
 from typing import Generator, Any
+from uuid import uuid4
+from pathlib import Path
 
 # FastAPI and routes
 from fastapi import Depends, HTTPException, status
@@ -50,6 +52,10 @@ def unpack_token(token: str) -> structure.TokenPayload:
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Could not validate session, please refresh token: {e}"
         )
+
+
+def generate_upload_uuid() -> str:
+    return uuid4().hex
 
 
 def validate_api_key(key: str) -> bool:
