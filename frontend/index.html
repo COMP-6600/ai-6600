@@ -1,23 +1,23 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8">
-		<title>Watermark Removal</title>
-		<link rel="stylesheet" href="indexStyle.css">
-	</head>
-	<body>
-		<div id="header">
-			<h1>Deep Learning Watermark Removal</h1>
-		</div>
-		<div id="body">
-			<div id="formCont">
-				<form method="post">
-					<input type="file">
-					<br><br>
-					<input type="reset" value="Clear">
-					<input type="submit" value="Submit">
-					</form>
-			</div>
-		</div>
-	</body>
+<head>
+    <meta charset="UTF-8">
+    <title>Watermark Removal</title>
+    <link href="static/indexStyle.css" rel="stylesheet">
+</head>
+<body>
+<div id="header">
+    <h1>Deep Learning Watermark Removal</h1>
+</div>
+<div id="body">
+    <div id="formCont">
+        <form action="/api/model/upload" enctype="multipart/form-data" method="post">
+            <input accept="image/png, image/jpeg" name="image" type="file">
+            <br><br>
+            <input type="reset" value="Clear">
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+</div>
+</body>
 </html>
