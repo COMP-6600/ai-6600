@@ -17,9 +17,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRATION: int = os.environ.get("ACCESS_TOKEN_EXPIRATION") or 60  # for auth on subsequent requests without spinup
 
     # Environment
-    ROOT_PATH: Path = Path().cwd()
-    if __name__ == 'app.core.config':
-        ROOT_PATH: Path = Path().cwd().parent  # Root path is a level up if not being run as a module
+    # if __name__ == 'app.core.config':
+    ROOT_PATH: Path = Path().cwd()  # TODO: Root path is a level up if not being run as a module (breaks local access)
     BACKEND_PATH: Path = ROOT_PATH / "backend"
     FRONTEND_PATH: Path = ROOT_PATH / "frontend"
     STATIC_PATH: Path = FRONTEND_PATH / "static"
