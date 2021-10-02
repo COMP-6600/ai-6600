@@ -18,6 +18,8 @@ class Settings(BaseSettings):
 
     # Environment
     ROOT_PATH: Path = Path().cwd().parent
+    if __name__ == '__main__':
+        ROOT_PATH: Path = Path().cwd()  # Root path is a level up if not being run as a module
     BACKEND_PATH: Path = ROOT_PATH / "backend"
     FRONTEND_PATH: Path = ROOT_PATH / "frontend"
     STATIC_PATH: Path = FRONTEND_PATH / "static"

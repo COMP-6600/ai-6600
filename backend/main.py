@@ -46,3 +46,5 @@ async def index(static_file):
 if __name__ == "__main__":
     logger.debug("Server started from script.")
     uvicorn.run("main:app", port=5000, reload=True, log_level='debug', access_log=True)
+else:
+    logger.debug("Server started from within Heroku.")
