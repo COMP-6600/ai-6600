@@ -1,8 +1,0 @@
-#!/bin/bash
-# used to separate which watermark images have
-# no watermark versions
-
-while IFS= read -r line; do
-	mv no-watermark-no-match/$line no-watermark/
-	mv watermark-no-match/$line watermark/
-done < commonList
