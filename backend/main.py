@@ -44,7 +44,13 @@ async def index(static_file):
 
 # DEBUG: Running module directly through uvicorn
 if __name__ == "__main__":
-    logger.debug("Server started from script.")
+    logger.debug("Server started by uvicorn import within Heroku.")
     uvicorn.run("main:app", port=5000, reload=True, log_level='debug', access_log=True)
+elif __name__ == "__mp_main__":
+    logger.debug("Multiprocessing thread started.")
+elif __name__ == "main":
+    logger.debug("Server started from script.")
 else:
-    logger.debug("Server started from within Heroku.")
+    # Debug unknown module __name__
+    logger.debug("Server started in an unknown manner.")
+    logger.debug(f"{__name__=}")
