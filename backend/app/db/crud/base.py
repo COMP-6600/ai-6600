@@ -24,7 +24,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """ Create a new object of this model given a validated schema. """
         # Convert data to JSON and feed through model
         db_obj = data
-        if type(data) != DeclarativeMeta:
+        if type(data) == DeclarativeMeta:
             db_obj = self.model(**(jsonable_encoder(data)))
 
         # Add to database and return

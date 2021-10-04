@@ -3,6 +3,10 @@ from typing import Generator, Any
 from uuid import uuid4
 from pathlib import Path
 
+import PIL
+from PIL import Image
+from io import BytesIO
+
 # FastAPI and routes
 from fastapi import Depends, HTTPException, status
 
@@ -55,6 +59,7 @@ def unpack_token(token: str) -> structure.TokenPayload:
 
 
 def generate_upload_uuid() -> str:
+    """ Generates a one-time uuid4 number for batch tickets or key generation. """
     return uuid4().hex
 
 
@@ -62,6 +67,18 @@ def validate_api_key(key: str) -> bool:
     """ Uses API key to validate user. """
     return key == settings.API_KEY
 
+
+def validate_image(input_data: bytes) -> bool:
+    """ Runs image through PIL to verify that it can be opened, as an added benefit, PIL verifies it is not a decompression bomb. """
+    try:
+        Image.open(BytesIO(input_data))
+    except PIL.UnidentifiedImageError:
+        return False
+    return True
+
+
+def batch_image(batch_token: str) -> bool:
+    return True
 
 def invalidate_token(token: str = Depends(oauth2_schema), db: Session = Depends(get_db)) -> bool:  # noqa
     """ Expire token to force API validation again. """
