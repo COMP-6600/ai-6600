@@ -1,11 +1,11 @@
 from logging.config import fileConfig
+from os import environ
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-
-from app.core.config import settings
+import dotenv
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -26,6 +26,8 @@ target_metadata = None
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
+dotenv.load_dotenv()
+
 
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
@@ -40,7 +42,7 @@ def run_migrations_offline():
 
     """
     context.configure(
-        url=str(settings.SQLALCHEMY_DATABASE_URI),
+        url=str(environ.get("POSTGRES_URL")),
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -59,7 +61,7 @@ def run_migrations_online():
     """
     # Patch connection_config to use .env insted of ini for url
     connection_config = config.get_section(config.config_ini_section)
-    connection_config["sqlalchemy.url"] = str(settings.SQLALCHEMY_DATABASE_URI)
+    connection_config["sqlalchemy.url"] = str(environ.get("POSTGRES_URL"))
     connectable = engine_from_config(
         connection_config,
         prefix="sqlalchemy.",
