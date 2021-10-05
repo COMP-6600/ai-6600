@@ -19,15 +19,16 @@ from jose.exceptions import JOSEError  # noqa
 # Database and CRUD
 from app.db.session import SessionLocal
 from sqlalchemy.orm import Session
+from app.db.crud import db_batch
 
 # Model and schemas
 # import app.db.schemas as schema
 # import app.db.models as model
 import app.db.structures as structure
 
-# Validation and Error Handling
-# import app.utils.exceptions
+# Validation, Error Handling, and Loggging
 from pydantic import ValidationError
+from app.core.config import logger
 
 
 # GLOBALS
@@ -77,8 +78,44 @@ def validate_image(input_data: bytes) -> bool:
     return True
 
 
-def batch_image(batch_token: str) -> bool:
-    return True
+async def queue_watermark_removal(batch_token: str, image_data: bytes, db: Session = Depends(get_db)):
+    """ Initiate process of removing watermark from image. """
+    # Set status to processing
+    db_batch.update_status(
+        db=db,
+        batch_token=batch_token,
+        process_status="processing"
+    )
+
+    # Remove watermark from image
+    processed_image_data: bytes = b''
+    try:
+        # TODO: Pass image data through trained model to remove watermark and store the output
+        processed_image_data = b'NOT_IMPLEMENTED'
+    except Exception as e:
+        # Set status to error
+        db_batch.update_status(
+            db=db,
+            batch_token=batch_token,
+            process_status="error"
+        )
+        logger.exception(f"An exception occurred while removing watermark from image with {batch_token=}.", exc_info=e)
+        return
+
+    # Write processed image data to database
+    db_batch.store_processed_image(
+        db=db,
+        batch_token=batch_token,
+        processed_image_data=processed_image_data
+    )
+
+    # Set status to completed
+    db_batch.update_status(
+        db=db,
+        batch_token=batch_token,
+        process_status="completed"
+    )
+
 
 def invalidate_token(token: str = Depends(oauth2_schema), db: Session = Depends(get_db)) -> bool:  # noqa
     """ Expire token to force API validation again. """

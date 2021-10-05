@@ -1,15 +1,27 @@
 # Routing and Database
-from fastapi import APIRouter, HTTPException, Depends, status, Header, Request, File, UploadFile
+from fastapi import (
+    APIRouter,
+    HTTPException,
+    Depends,
+    status,
+    Header,
+    Request,
+    File,
+    UploadFile,
+    BackgroundTasks
+)
 from sqlalchemy.orm import Session
-
-# File handling and identification
-from PIL import Image
 
 # CRUD
 from app.db.crud import db_batch
 
 # Dependencies
-from app.utils.dependencies import get_db, generate_upload_uuid, validate_image
+from app.utils.dependencies import (
+    get_db,
+    generate_upload_uuid,
+    validate_image,
+    queue_watermark_removal
+)
 
 # Load settings
 from app.core.config import logger, settings
@@ -29,7 +41,13 @@ router = APIRouter(
 #   IMAGE PROCESSING
 # ---------------------
 @router.post('/upload')
-async def upload(request: Request, content_length: int = Header(None), db: Session = Depends(get_db), image: UploadFile = File(...)):
+async def upload(
+        request: Request,
+        background_tasks: BackgroundTasks,
+        content_length: int = Header(None),
+        db: Session = Depends(get_db),
+        image: UploadFile = File(...)
+):
     # Validate content length and reject missing content length header, handles file upload over constraints
     if content_length is None or content_length > settings.MAX_CONTENT_LENGTH:
         raise HTTPException(
@@ -70,6 +88,9 @@ async def upload(request: Request, content_length: int = Header(None), db: Sessi
         original_image_data=image_temp
     )
 
+    # Queue a background task to process image through completed model
+    background_tasks.add_task(queue_watermark_removal, image_uuid, image_temp)
+
     # Notify user of successful upload and pass a batch token for follow-up
     logger.debug(f"File: {image.filename} was uploaded to the server by {request.client.host}")
     return {
@@ -83,22 +104,29 @@ async def upload(request: Request, content_length: int = Header(None), db: Sessi
 def get_batch_status(token: str, db: Session = Depends(get_db)):
     """ Endpoint to poll periodically to check the status of the batch job to avoid a more complex approach (WS). """
     batch_status = db_batch.get_status(db, batch_token=token)
-    if batch_status == "READY":
+    if batch_status == "completed":
         return {
-            "status": "ready",
+            "status": batch_status,
             "detail": "the image is ready to download."
         }
-    elif batch_status == "PROCESSING":
+    elif batch_status == "processing":
         return {
-            "status": "processing",
+            "status": batch_status,
             "detail": "the image is currently being processed."
         }
-    elif batch_status == "QUEUED":
+    elif batch_status == "queued":
         return {
-            "status": "queued",
+            "status": batch_status,
             "detail": "the image is in line for processing."
         }
+    elif batch_status == "error":
+        logger.error(f"Image with batch_token={token} encountered an error while processing.")
+        return {
+            "status": batch_status,
+            "detail": "there was an issue processing the image provided."
+        }
     else:
+        logger.error(f"Image with batch_token={token} was not found in the database.")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="The batch token submitted does not correspond to a batch ticket. Please try again.",
