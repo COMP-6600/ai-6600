@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = os.environ.get("SECRET_KEY") or secrets.token_urlsafe(32)  # for JWT signing
     ALGORITHM = 'HS256'  # for JTW security
     ACCESS_TOKEN_EXPIRATION: int = os.environ.get("ACCESS_TOKEN_EXPIRATION") or 60  # for auth on subsequent requests without spinup
+    MAX_CONTENT_LENGTH: int = os.environ.get("MAX_CONTENT_LENGTH")
 
     # Environment
     ROOT_PATH: Path = Path().cwd().parent
