@@ -11,3 +11,4 @@ class Batch(Base):
     created = Column(DateTime, nullable=False)
     image_original = Column(LargeBinary, nullable=False)
     image_processed = Column(LargeBinary)
+    process_status = Column(String, nullable=False)
