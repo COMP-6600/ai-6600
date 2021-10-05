@@ -12,7 +12,7 @@ from app.db.crud import db_batch
 from app.utils.dependencies import get_db, generate_upload_uuid, validate_image
 
 # Load settings
-from app.core.config import logger
+from app.core.config import logger, settings
 
 
 # -------------------
@@ -29,7 +29,25 @@ router = APIRouter(
 #   IMAGE PROCESSING
 # ---------------------
 @router.post('/upload')
-async def upload(request: Request, db: Session = Depends(get_db), image: UploadFile = File(...)):
+async def upload(request: Request, content_length: int = Header(None), db: Session = Depends(get_db), image: UploadFile = File(...)):
+    # Validate content length and reject missing content length header, handles file upload over constraints
+    if content_length is None or content_length > settings.MAX_CONTENT_LENGTH:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Request is missing a Content-Length header.",
+        )
+
+    # Consume image data into memory
+    image_temp = await image.read()
+
+    # Add extra sanity check to avoid adding a large file to database, mitigates a more malicious header modification attack
+    if len(image_temp) > settings.MAX_CONTENT_LENGTH or len(image_temp) > content_length:
+        logger.critical(f"A file was uploaded that did not match Content-Length restrictions. Client info: {request.client}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The file submitted exceeds the size set as the Content-Length, this request has been logged.",
+        )
+
     # Gather content type from submission (shallow validation). Perform more rigorous validation with PIL in a model.
     if image.content_type != "image/jpeg" and image.content_type != "image/png":
         raise HTTPException(
@@ -39,7 +57,7 @@ async def upload(request: Request, db: Session = Depends(get_db), image: UploadF
 
     # Don't write extension, allow PIL to guess and validate to prevent issues on mismatch
     image_uuid = generate_upload_uuid()
-    if not validate_image(await image.read()):
+    if not validate_image(image_temp):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="File submitted is corrupted and cannot be read as an image. Please try again.",
@@ -49,7 +67,7 @@ async def upload(request: Request, db: Session = Depends(get_db), image: UploadF
     db_batch.create_ticket(
         db=db,
         batch_token=image_uuid,
-        original_image_data=await image.read()
+        original_image_data=image_temp
     )
 
     # Notify user of successful upload and pass a batch token for follow-up
