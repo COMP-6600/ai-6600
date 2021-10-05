@@ -16,7 +16,8 @@ class CRUDBatch(CRUDBase[Batch, BatchCreate, BatchUpdate]):
         ticket = Batch(
             batch=batch_token,
             created=arrow.utcnow().datetime,
-            image_original=original_image_data
+            image_original=original_image_data,
+            process_status="queued"
         )
         return self.create(db, data=ticket)
 
@@ -32,9 +33,11 @@ class CRUDBatch(CRUDBase[Batch, BatchCreate, BatchUpdate]):
             data={'image_processed': processed_image_data}
         )
 
-    def get_status(self, db: Session, batch_token) -> str:
+    def get_status(self, db: Session, batch_token: str) -> str:
         """ Checks the status of a batch ticket. Returns READY if it is ready to retrieve, and PROCESSING if it is being worked on, or QUEUED if it is in line. """
         ticket = self.get_ticket(db, batch_token=batch_token)
+        return ticket.process_status
+
 
         # TODO: This is not efficient and will result in delays, add an additional column with completion status and poll that instead
         completed = ticket.image_processed
