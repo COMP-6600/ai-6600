@@ -32,18 +32,13 @@ html {
 
 body {
 	background-color: #202030;
-	height: 38em;
-}
-
-#header {
-	height: 6.5em;
 }
 
 #header h1 {
 	text-align: center;
 	color: #C0D7BB;
-	font-size: 2.2em;
-	margin-top: 1.5em;
+	font-size: 3em;
+	font-family: 'Quicksand', sans-serif;
 	opacity: 0;
 	animation-name: slideInBottom;
 	animation-duration: 1.2s;
@@ -56,7 +51,6 @@ body {
 	margin-right: auto;
 	width: 100%;
 	opacity: 0;
-	margin-top: 10em;
 	display: block;
 	text-align: center;
 	animation-name: slideInBottom;
@@ -71,4 +65,8 @@ body {
 
 #formCont input {
 	overflow: hidden;
+}
+
+.form-buttons {
+	width: 100%;
 }
