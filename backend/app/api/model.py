@@ -39,7 +39,8 @@ async def upload(request: Request, db: Session = Depends(get_db), image: UploadF
 
     # Don't write extension, allow PIL to guess and validate to prevent issues on mismatch
     image_uuid = generate_upload_uuid()
-    if not validate_image(await image.read()):
+    image_temp = await image.read()
+    if not validate_image(image_temp):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="File submitted is corrupted and cannot be read as an image. Please try again.",
@@ -49,7 +50,7 @@ async def upload(request: Request, db: Session = Depends(get_db), image: UploadF
     db_batch.create_ticket(
         db=db,
         batch_token=image_uuid,
-        original_image_data=await image.read()
+        original_image_data=image_temp
     )
 
     # Notify user of successful upload and pass a batch token for follow-up
