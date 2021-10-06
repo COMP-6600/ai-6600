@@ -78,7 +78,7 @@ def validate_image(input_data: bytes) -> bool:
     return True
 
 
-async def queue_watermark_removal(batch_token: str, image_data: bytes, db: Session = Depends(get_db)):
+def queue_watermark_removal(db: Session, batch_token: str, image_data: bytes):
     """ Initiate process of removing watermark from image. """
     # Set status to processing
     db_batch.update_status(

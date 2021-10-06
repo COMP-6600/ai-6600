@@ -89,7 +89,7 @@ async def upload(
     )
 
     # Queue a background task to process image through completed model
-    background_tasks.add_task(queue_watermark_removal, image_uuid, image_temp)
+    background_tasks.add_task(queue_watermark_removal, db, image_uuid, image_temp)
 
     # Notify user of successful upload and pass a batch token for follow-up
     logger.debug(f"File: {image.filename} was uploaded to the server by {request.client.host}")
