@@ -10,6 +10,7 @@ from fastapi import (
     UploadFile,
     BackgroundTasks
 )
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 # CRUD
@@ -25,6 +26,9 @@ from app.utils.dependencies import (
 
 # Load settings
 from app.core.config import logger, settings
+
+# Libraries
+from io import BytesIO
 
 
 # -------------------
@@ -131,3 +135,20 @@ def get_batch_status(token: str, db: Session = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="The batch token submitted does not correspond to a batch ticket. Please try again.",
         )
+
+
+@router.get("/download", response_class=StreamingResponse)
+def download_processed_image(token: str, db: Session = Depends(get_db)) -> StreamingResponse:
+    """ Endpoint to be hit when image is ready to download.
+     TODO: Add completion JWT to table to be sent on completion response to avoid having to hit database twice to check for completion.
+     """
+    ticket = db_batch.get_ticket(db, batch_token=token)
+    if ticket is None or ticket.process_status != "completed":
+        logger.error(f"Image with batch_token={token} is not yet ready to download or does not exist.")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="The batch token submitted does not correspond to a batch ticket or is not available for download. Please check request and retry.",
+        )
+
+    # Request is valid if token is in table, return chunked data stream
+    return StreamingResponse(BytesIO(ticket.image_processed), media_type="image/png")
