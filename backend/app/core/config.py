@@ -1,5 +1,5 @@
 import logging
-import os
+from os import environ as env
 import secrets
 from typing import Any, Dict, Optional
 from pathlib import Path
@@ -8,19 +8,19 @@ from pydantic import BaseSettings, PostgresDsn, validator
 
 class Settings(BaseSettings):
     # Debug
-    DEBUG: bool = os.environ.get("DEBUG") or True
+    DEBUG: bool = env.get("DEBUG") or True
 
     # Server
-    API_KEY: str = os.environ.get("API_KEY")  # for access control
-    SECRET_KEY: str = os.environ.get("SECRET_KEY") or secrets.token_urlsafe(32)  # for JWT signing
+    API_KEY: str = secrets.token_urlsafe(32)  # for access control
+    SECRET_KEY: str = secrets.token_urlsafe(32)  # for JWT signing
     ALGORITHM = 'HS256'  # for JTW security
-    ACCESS_TOKEN_EXPIRATION: int = os.environ.get("ACCESS_TOKEN_EXPIRATION") or 60  # for auth on subsequent requests without spinup
-    MAX_CONTENT_LENGTH: int = os.environ.get("MAX_CONTENT_LENGTH")
+    ACCESS_TOKEN_EXPIRATION: int = 60  # for auth on subsequent requests without spinup
+    MAX_CONTENT_LENGTH: int
 
     # Environment
     ROOT_PATH: Path = Path().cwd().parent
-    if os.environ.get("HOME") is not None:
-        ROOT_PATH = Path(os.environ.get("HOME"))
+    if env.get("HOME") is not None:
+        ROOT_PATH = Path(env.get("HOME"))
     BACKEND_PATH: Path = ROOT_PATH / "backend"
     FRONTEND_PATH: Path = ROOT_PATH / "frontend"
     STATIC_PATH: Path = FRONTEND_PATH / "static"
@@ -30,10 +30,10 @@ class Settings(BaseSettings):
     ALLOWED_UPLOAD_MIMETYPES: list = ["image/jpg", "image/jpeg", "image/png"]
 
     # Database
-    POSTGRES_SERVER: str = os.environ.get("POSTGRES_SERVER")
-    POSTGRES_USER: str = os.environ.get("POSTGRES_USER")
-    POSTGRES_PASSWORD: str = os.environ.get("POSTGRES_PASSWORD")
-    POSTGRES_DB: str = os.environ.get("POSTGRES_DB")
+    POSTGRES_SERVER: str
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_DB: str
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
@@ -59,5 +59,6 @@ logger.setLevel('DEBUG')
 logger.addHandler(logging.StreamHandler())
 logger.debug(f'DEBUG:   {__name__=}')
 logger.debug(f'DEBUG:   Working Directory: {Path().cwd()}')
+
 # Export settings
 settings = Settings()
