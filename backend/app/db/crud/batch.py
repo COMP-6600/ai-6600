@@ -2,7 +2,7 @@
 import arrow
 
 # Dependencies
-from typing import Optional
+from typing import Optional, Union
 
 # Database
 from sqlalchemy.orm import Session
@@ -24,19 +24,17 @@ class CRUDBatch(CRUDBase[Batch, BatchCreate, BatchUpdate]):
         )
         return self.create(db, data=ticket)
 
-    def get_ticket(self, db: Session, batch_token: str) -> Optional[Batch]:
+    def get_ticket(self, db: Session, batch_token: str) -> Union[Batch, None]:
         """ Obtain a batch ticket if it is available in the database """
         return self.read(db, {"batch": batch_token}, first=True)
 
     def store_processed_image(self, db: Session, batch_token: str, processed_image_data: bytes):
         """ Allows setting and updating of the instance token. """
         ticket = self.get_ticket(db, batch_token=batch_token)
-
-        self.update(
-            db=db,
-            model_object=ticket,
-            data={'image_processed': processed_image_data}
-        )
+        ticket.image_processed = processed_image_data
+        db.add(ticket)
+        db.commit()
+        db.refresh(ticket)
 
     def get_status(self, db: Session, batch_token: str) -> str:
         """ Checks the status of a batch ticket. Returns READY if it is ready to retrieve, and PROCESSING if it is being worked on, or QUEUED if it is in line. """
@@ -53,13 +51,10 @@ class CRUDBatch(CRUDBase[Batch, BatchCreate, BatchUpdate]):
             return False
 
         # Update ticket status
-        self.update(
-            db=db,
-            model_object=ticket,
-            data={
-                'status': process_status
-            }
-        )
+        ticket.process_status = process_status
+        db.add(ticket)
+        db.commit()
+        db.refresh(ticket)
         return True
 
 
