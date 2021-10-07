@@ -4,6 +4,7 @@ import mimetypes
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.requests import Request
 from fastapi.responses import HTMLResponse, Response
 
 # Load settings
@@ -31,27 +32,18 @@ app.add_middleware(CORSMiddleware)
 app.include_router(AUTH_ROUTER)
 app.include_router(MODEL_ROUTER)
 
-# Mount static directory to serve website
-# app.mount("/static", StaticFiles(directory="static"), name="static")
-# templates = Jinja2Templates(directory="templates")
+# Mount static directory to serve directly within html
+app.mount("/static", StaticFiles(directory=str(settings.STATIC_PATH)), name="static")
+templates = Jinja2Templates(directory=str(settings.FRONTEND_PATH))
 
 
 # TODO: Temporary solution, rely on aiofiles next time
 @app.get('/', response_class=HTMLResponse)
-async def index():
-    with open(str(settings.FRONTEND_PATH / "index.html")) as f:
-        page = f.read()
-    return page
-
-
-# TODO: Temporary solution, rely on aiofiles next time
-@app.get('/static/{static_file}')
-async def index(static_file):
-    file_mime = mimetypes.guess_type(str(settings.STATIC_PATH / static_file))
-    with open(str(settings.STATIC_PATH / static_file)) as f:
-        page = f.read()
-    return Response(content=page, media_type=file_mime[0])
-
+async def index(req: Request):
+    return templates.TemplateResponse(
+        "index.html",
+        {"request": req}
+    )
 
 # DEBUG: Running module directly through uvicorn
 if __name__ == "__main__":
