@@ -66,4 +66,4 @@ settings = Settings()
 # TODO: Debug Heroku deployment
 if os.environ.get("DYNO"):
     logger.debug("Config fields loaded:")
-    logger.debug(settings.fields)
+    logger.debug(settings.dict())
