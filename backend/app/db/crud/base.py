@@ -16,7 +16,9 @@ UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     """ Generic base operations for all CRUD tasks.
-     Implement true CRUD methodology by providing base methods for each operation. """
+     Implement true CRUD methodology by providing base methods for each operation.
+     # TODO: Remove a lot of boilerplate by instantiating class with session and having a destructor to keep scope limited
+     """
     def __init__(self, model: Type[ModelType]):
         self.model = model
 
@@ -41,12 +43,16 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             .filter_by(**item)
             .all()
         )
-        if first:
-            return values[0]
-        return values
+        try:
+            if first:
+                return values[0]
+            return values
+        except IndexError:
+            return None
 
     def update(self, db: Session, model_object: ModelType, data: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
         """ Update a database model object with another object or a dictionary with key-value pairs. """
+        # TODO: Make operation more robust by removing json-safe behavior and updating db model objects directly
         # Break up input into json and mirror data into a temporary model mapping
         obj_data = jsonable_encoder(model_object)
         mirror_obj = self.model(**obj_data)
