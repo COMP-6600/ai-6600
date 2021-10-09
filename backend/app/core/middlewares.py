@@ -16,11 +16,13 @@ if env.get("DYNO"):
     SENTRY_DSN = env.get("SENTRY_DSN")
     SENTRY_STAGE = env.get("STAGE")
     HEROKU_HOST = env.get("HEROKU_HOST")
+    SITE_HOST = env.get("SITE_HOST")
 else:
     # Local deployment
     SENTRY_DSN = dotenv.get_key(".env", "SENTRY_DSN")
     SENTRY_STAGE = dotenv.get_key(".env", 'STAGE')
     HEROKU_HOST = dotenv.get_key(".env", 'HEROKU_HOST')
+    SITE_HOST = dotenv.get_key(".env", "SITE_HOST")
 
 
 class HTTPRequestLoggerMiddleware(BaseHTTPMiddleware):
@@ -88,16 +90,16 @@ class HerokuRedirectMiddleware(BaseHTTPMiddleware):
         call_next: RequestResponseEndpoint
     ) -> Response:
         try:
+            response = await call_next(request)
             if HEROKU_HOST is None:
                 logger.critical("HEROKU_HOST env variable missing. For security, the app will refuse all requests to this endpoint.")
-            elif HEROKU_HOST.lower() not in request.headers['Host'].lower():
-                response = await call_next(request)
-                return response
-            logger.warning("For security, a request to the Heroku endpoint has been refused and a permanent redirect was sent to the client.")
-            raise HTTPException(
-                status_code=status.HTTP_301_MOVED_PERMANENTLY,
-                detail="The application now resides in a different location."
-            )
+                response.status_code = 500
+            elif HEROKU_HOST.lower() in request.headers['Host'].lower():
+                # Manually set a redirect response that the browser can follow
+                logger.warning("For security, a request to the Heroku endpoint has been refused and a permanent redirect was sent to the client.")
+                response.status_code = 301
+                response.headers.append('Location', SITE_HOST)
+            return response
         except (KeyError, AttributeError):
             # Handles both a missing and an invalid Host header
             logger.critical("[Middlewares.HerokuRedirectMiddleware] - The middleware could not process the provided HOST header.")
