@@ -109,33 +109,18 @@ async def upload(
     }
 
 
-@router.get("/batch")
-def get_batch_status(token: str, db: Session = Depends(get_db)):
+@router.get("/batch", response_model=structure.BatchStatus)
+def get_batch_status(
+        token: str = Query(..., min_length=32, max_length=32, description="The batch token for the image to retrieve."),
+        db: Session = Depends(get_db)
+):
     """ Endpoint to poll periodically to check the status of the batch job to avoid a more complex approach (WS). """
-    ticket = db_batch.get_ticket(db, batch_token=token)
-    process_status = ticket.process_status
-    if process_status  == "completed":
+    try:
         return {
-            "status": process_status,
-            "detail": "the image is ready to download."
+            "status": db_batch.get_ticket(db, batch_token=token).process_status,
+            "detail": None
         }
-    elif process_status == "processing":
-        return {
-            "status": process_status,
-            "detail": "the image is currently being processed."
-        }
-    elif process_status == "queued":
-        return {
-            "status": process_status,
-            "detail": "the image is in line for processing."
-        }
-    elif process_status == "error":
-        logger.error(f"Image with batch_token={token} encountered an error while processing.")
-        return {
-            "status": process_status,
-            "detail": "there was an issue processing the image provided."
-        }
-    else:
+    except (ValueError, AttributeError):
         logger.error(f"Image with batch_token={token} was not found in the database.")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
