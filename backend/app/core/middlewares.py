@@ -1,12 +1,18 @@
 import sentry_sdk
-import os
 import asyncio
 from fastapi import HTTPException, status
-from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+from starlette.requests import Request
+from starlette.responses import Response
+import dotenv
+
+# Import global logger
 from app.core.config import logger
 
-import dotenv
-dotenv.load_dotenv()
+# Retrieve subset of local keys
+SENTRY_DSN = dotenv.get_key(".env", "SENTRY_DSN")
+SENTRY_STAGE = dotenv.get_key(".env", 'STAGE')
+HEROKU_HOST = dotenv.get_key(".env", 'HEROKU_HOST')
 
 
 class HTTPRequestLoggerMiddleware(BaseHTTPMiddleware):
@@ -34,7 +40,9 @@ class HTTPRequestLoggerMiddleware(BaseHTTPMiddleware):
             "sec-fetch-dest",
             "accept-encoding",
             "accept-language",
-            "user-agent"
+            "user-agent",
+            "connection",
+            "upgrade-insecure-requests"
         ]
 
         logged_headers = []
@@ -46,10 +54,14 @@ class HTTPRequestLoggerMiddleware(BaseHTTPMiddleware):
         return logged_headers
 
 
-class HTTPRoundRobinMiddleware(BaseHTTPMiddleware):
+class HTTPRoundRobinLimiterMiddleware(BaseHTTPMiddleware):
     """ Drops requests which exceed a time threshold. Mitigates some DOS and large-payload attacks.
     Concept loosely adapted from ZionStage @ https://github.com/tiangolo/fastapi/issues/1752#issuecomment-682579845 """
-    async def dispatch(self, request, call_next):
+    async def dispatch(
+        self,
+        request: Request,
+        call_next: RequestResponseEndpoint
+    ) -> Response:
         try:
             return await asyncio.wait_for(call_next(request), timeout=15)
         except asyncio.TimeoutError:
@@ -59,8 +71,36 @@ class HTTPRoundRobinMiddleware(BaseHTTPMiddleware):
             )
 
 
+class HerokuRedirectMiddleware(BaseHTTPMiddleware):
+    """ All requests to the unproxied Heroku endpoint should be refused to avoid confusion and take advantage of SSL and other Cloudflare protections.
+        This middleware will proxy all said requests to new application instance. Local requests are ignored. """
+    async def dispatch(
+        self,
+        request: Request,
+        call_next: RequestResponseEndpoint
+    ) -> Response:
+        try:
+            if HEROKU_HOST is None:
+                logger.critical("HEROKU_HOST env variable missing. For security, the app will refuse all requests to this endpoint.")
+            elif HEROKU_HOST.lower() not in request.headers['Host'].lower():
+                response = await call_next(request)
+                return response
+            logger.warning("For security, a request to the Heroku endpoint has been refused and a permanent redirect was sent to the client.")
+            raise HTTPException(
+                status_code=status.HTTP_301_MOVED_PERMANENTLY,
+                detail="The application now resides in a different location."
+            )
+        except (KeyError, AttributeError):
+            # Handles both a missing and an invalid Host header
+            logger.critical("[Middlewares.HerokuRedirectMiddleware] - The middleware could not process the provided HOST header.")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="The application ran into an issue while processing a request."
+            )
+
+
 # Load Sentry
 sentry_sdk.init(
-    dsn=os.environ.get("SENTRY_DSN"),
-    environment=os.environ.get("STAGE")
+    dsn=SENTRY_DSN,
+    environment=SENTRY_STAGE
 )
