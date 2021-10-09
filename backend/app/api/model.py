@@ -28,6 +28,9 @@ from app.utils.dependencies import (
 # Load settings
 from app.core.config import logger, settings
 
+# Models
+import app.db.structures as structure
+
 # Libraries
 from io import BytesIO
 from typing import Optional
@@ -46,7 +49,7 @@ router = APIRouter(
 # ---------------------
 #   IMAGE PROCESSING
 # ---------------------
-@router.post('/upload')
+@router.post('/upload', response_model=structure.UploadResponse)
 async def upload(
         request: Request,
         background_tasks: BackgroundTasks,
@@ -100,7 +103,7 @@ async def upload(
     # Notify user of successful upload and pass a batch token for follow-up
     logger.debug(f"File: {image.filename} was uploaded to the server by {request.client.host}")
     return {
-        "status": "upload successful",
+        "status": "success",
         "filename": image.filename,
         "batch_token": image_uuid
     }
