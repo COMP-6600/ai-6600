@@ -8,7 +8,8 @@ from fastapi import (
     Request,
     File,
     UploadFile,
-    BackgroundTasks
+    BackgroundTasks,
+    Query
 )
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
@@ -29,6 +30,7 @@ from app.core.config import logger, settings
 
 # Libraries
 from io import BytesIO
+from typing import Optional
 
 
 # -------------------
@@ -139,8 +141,13 @@ def get_batch_status(token: str, db: Session = Depends(get_db)):
 
 
 @router.get("/download", response_class=StreamingResponse)
-def download_processed_image(token: str, db: Session = Depends(get_db)) -> StreamingResponse:
+def download_processed_image(
+        token: str = Query(..., min_length=32, max_length=32, description="The batch token for the image to retrieve."),
+        original: Optional[bool] = Query(None, description="Set to 'true' if we should retrieve the original image instead of the processed one."),
+        db: Session = Depends(get_db)
+) -> StreamingResponse:
     """ Endpoint to be hit when image is ready to download.
+        Alternatively, set optional=1 to retrieve the original image instead.
      TODO: Add completion JWT to table to be sent on completion response to avoid having to hit database twice to check for completion.
      """
     ticket = db_batch.get_ticket(db, batch_token=token)
@@ -152,4 +159,6 @@ def download_processed_image(token: str, db: Session = Depends(get_db)) -> Strea
         )
 
     # Request is valid if token is in table, return chunked data stream
+    if original:
+        return StreamingResponse(BytesIO(ticket.image_original), media_type="image/png")
     return StreamingResponse(BytesIO(ticket.image_processed), media_type="image/png")
