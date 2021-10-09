@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     ALGORITHM = 'HS256'  # for JTW security
     ACCESS_TOKEN_EXPIRATION: int = 60  # for auth on subsequent requests without spinup
     MAX_CONTENT_LENGTH: int
+    OPENAPI_URL = '/openapi.json'
 
     # Environment
     ROOT_PATH: Path = Path().cwd().parent

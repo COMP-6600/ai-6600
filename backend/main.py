@@ -21,7 +21,7 @@ from app.api.auth import router as AUTH_ROUTER
 from app.api.model import router as MODEL_ROUTER
 
 # Main application
-app = FastAPI()
+app = FastAPI(openapi_url=settings.OPENAPI_URL)
 
 # Load custom middlewares
 app.add_middleware(SentryAsgiMiddleware)
