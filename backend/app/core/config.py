@@ -1,4 +1,5 @@
 import logging
+import os
 from os import environ as env
 import secrets
 from typing import Any, Dict, Optional
@@ -58,8 +59,11 @@ class Settings(BaseSettings):
 logger: logging.Logger = logging.getLogger('backend')
 logger.setLevel('DEBUG')
 logger.addHandler(logging.StreamHandler())
-logger.debug(f'DEBUG:   {__name__=}')
-logger.debug(f'DEBUG:   Working Directory: {Path().cwd()}')
 
 # Export settings
 settings = Settings()
+
+# TODO: Debug Heroku deployment
+if os.environ.get("DYNO"):
+    logger.debug("Config fields loaded:")
+    logger.debug(settings.fields)

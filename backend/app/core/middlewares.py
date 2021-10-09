@@ -5,14 +5,22 @@ from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoin
 from starlette.requests import Request
 from starlette.responses import Response
 import dotenv
+from os import environ as env
 
 # Import global logger
 from app.core.config import logger
 
 # Retrieve subset of local keys
-SENTRY_DSN = dotenv.get_key(".env", "SENTRY_DSN")
-SENTRY_STAGE = dotenv.get_key(".env", 'STAGE')
-HEROKU_HOST = dotenv.get_key(".env", 'HEROKU_HOST')
+if env.get("DYNO"):
+    # Heroku deployment
+    SENTRY_DSN = env.get("SENTRY_DSN")
+    SENTRY_STAGE = env.get("STAGE")
+    HEROKU_HOST = env.get("HEROKU_HOST")
+else:
+    # Local deployment
+    SENTRY_DSN = dotenv.get_key(".env", "SENTRY_DSN")
+    SENTRY_STAGE = dotenv.get_key(".env", 'STAGE')
+    HEROKU_HOST = dotenv.get_key(".env", 'HEROKU_HOST')
 
 
 class HTTPRequestLoggerMiddleware(BaseHTTPMiddleware):
