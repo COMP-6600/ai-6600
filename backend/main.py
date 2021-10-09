@@ -10,10 +10,13 @@ from fastapi.responses import HTMLResponse, Response
 from app.core.config import logger, settings
 
 # Load custom middlewares
-import sentry_sdk
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
-from app.core.middlewares import HTTPRequestLoggerMiddleware
 from fastapi.middleware.cors import CORSMiddleware
+from app.core.middlewares import (
+    HTTPRequestLoggerMiddleware,
+    HerokuRedirectMiddleware,
+    HTTPRoundRobinLimiterMiddleware
+)
 
 # Load routers
 from app.api.auth import router as AUTH_ROUTER
@@ -22,10 +25,12 @@ from app.api.model import router as MODEL_ROUTER
 # Main application
 app = FastAPI()
 
-# Load custom middlewares
+# Load middlewares
 app.add_middleware(SentryAsgiMiddleware)
-app.add_middleware(HTTPRequestLoggerMiddleware)
 app.add_middleware(CORSMiddleware)
+app.add_middleware(HTTPRequestLoggerMiddleware)
+app.add_middleware(HerokuRedirectMiddleware)
+app.add_middleware(HTTPRoundRobinLimiterMiddleware)
 
 # Routers
 app.include_router(AUTH_ROUTER)
