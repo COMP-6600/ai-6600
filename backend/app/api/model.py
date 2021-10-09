@@ -55,7 +55,7 @@ async def upload(
         background_tasks: BackgroundTasks,
         content_length: int = Header(None),
         db: Session = Depends(get_db),
-        image: UploadFile = File(...)
+        image: UploadFile = File(..., description="Binary data of an uploaded image that we should process.")
 ):
     # Validate content length and reject missing content length header, handles file upload over constraints
     if content_length is None or content_length > settings.MAX_CONTENT_LENGTH:
@@ -136,7 +136,6 @@ def download_processed_image(
 ) -> StreamingResponse:
     """ Endpoint to be hit when image is ready to download.
         Alternatively, set optional=1 to retrieve the original image instead.
-     TODO: Add completion JWT to table to be sent on completion response to avoid having to hit database twice to check for completion.
      """
     ticket = db_batch.get_ticket(db, batch_token=token)
     if ticket is None or ticket.process_status != "completed":

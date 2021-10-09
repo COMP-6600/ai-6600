@@ -7,9 +7,10 @@ class UploadExtension(BaseModel):
     extension: str = None
 
     @validator("extension")
-    def filename_to_extension_validator(cls, v) -> str:
+    def filename_to_extension_validator(cls, v):
         if v in settings.ALLOWED_UPLOAD_MIMETYPES:
             return v
+        logger.error(f"[Validator.UploadExtension] - The extension indicates an invalid mimetype was given. {v=}")
         raise ValueError("Invalid MIME type received on file upload. Keys must be 32 characters in length, strictly alphanumeric, and lowercase.")
 
 

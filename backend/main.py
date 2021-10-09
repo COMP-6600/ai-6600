@@ -1,6 +1,5 @@
 # Pull ASGI Server and FastAPI
 import uvicorn
-import mimetypes
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
