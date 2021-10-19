@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRATION: int = 60  # for auth on subsequent requests without spinup
     MAX_CONTENT_LENGTH: int
     OPENAPI_URL = '/openapi.json'
+    SITE_HOST: str
 
     # Environment
     ROOT_PATH: Path = Path().cwd().parent
@@ -48,6 +49,7 @@ class Settings(BaseSettings):
             password=values.get("POSTGRES_PASSWORD"),
             host=values.get("POSTGRES_SERVER"),
             path=f"/{values.get('POSTGRES_DB') or ''}",
+            query=values.get('POSTGRES_SSL')
         )
 
     class Config:
