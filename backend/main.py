@@ -56,8 +56,8 @@ async def index(
 ):
     """ Main entry point of SPA with index.html as the response. """
     return templates.TemplateResponse(
-        "index.html",
-        {
+        name="index.html",
+        context={
             "request": req,
             "origin": origin
         }
