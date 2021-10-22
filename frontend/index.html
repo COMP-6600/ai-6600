@@ -10,6 +10,9 @@
     <!-- CUSTOM CSS -->
     <link href="static/indexStyle.css" rel="stylesheet">
 
+	<!-- CUSTOM JS -->
+	<script src="static/jobs.js"></script>
+
     <!-- Custom fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,7 +29,7 @@
         <form action="/api/model/upload" enctype="multipart/form-data" method="post" id="formCont">
             <div class="m-3 row justify-content-center">
                 <div class="col-5">
-                    <input class="form-control" accept="image/png, image/jpeg" name="image" type="file"> <small class="form-text text-muted">Maximum image size is 5MB.</small>
+                    <input id="file-selector" class="form-control" accept="image/png, image/jpeg" name="image" type="file"> <small class="form-text text-muted">Maximum image size is 5MB.</small>
                 </div>
             </div>
             <div class="m-4 row justify-content-center">
