@@ -1,0 +1,22 @@
+{
+  "name": "deep-learning-watermark-removal",
+  "description": "A watermark removal proof-of-concept service.",
+  "private": true,
+  "contributors": [
+    "Carlos Domani",
+    "Ali Yildirim",
+    "Joshua Boyd"
+  ],
+  "license": "UNLICENSED",
+  "homepage": "https://ai.kltpzyxm.live/",
+  "scripts": {
+    "frontend-install": "npm install --prefix ./frontend",
+    "frontend-build": "npm run build --prefix ./frontend",
+    "heroku-prebuild": "npm run frontend-install",
+    "build": "npm run frontend-build"
+  },
+  "engines": {
+    "node": ">=17.1.0",
+    "npm": ">=8.1.3"
+  }
+}

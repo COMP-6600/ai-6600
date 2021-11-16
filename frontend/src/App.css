@@ -31,7 +31,7 @@ html {
 }
 
 body {
-	background-color: #202030;
+	background-color: #202030 !important;
 }
 
 #header h1 {

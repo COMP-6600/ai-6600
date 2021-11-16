@@ -5,53 +5,30 @@
     <title>Deep Learning Watermark Removal</title>
 
     <!-- FAVICON-->
-    <link rel="apple-touch-icon" sizes="180x180" href="./static/icon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="./static/icon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="./static/icon/favicon-16x16.png">
-    <link rel="manifest" href="./static/icon/site.webmanifest">
+    <link rel="apple-touch-icon" sizes="180x180" href="./src/static/icon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./src/static/icon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./src/static/icon/favicon-16x16.png">
+    <link rel="manifest" href="./src/static/icon/site.webmanifest">
 
     <!-- BOOTSTRAP CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
-    
-    <!-- CUSTOM CSS -->
-    <link href="./static/css/indexStyle.css" rel="stylesheet">
 
-	<!-- CUSTOM JS -->
-	<script src="static/jobs.js"></script>
+    <!-- CUSTOM CSS -->
+    <link href="./src/App.css" rel="stylesheet">
 
     <!-- Custom fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
 </head>
 <body>
-<div class="d-flex flex-column min-vh-100 container justify-content-center" id="body">
-    <div class="section align-middle">
-        <div id="header" class="row justify-content-center">
-            <div class="m-3 col-10">
-                <h1 class="text-center">Deep Learning Watermark Removal</h1>
-            </div>
-        </div>
-        <form action="{{ url_for('upload') }}" enctype="multipart/form-data" method="post" id="formCont">
-            <div class="m-3 row justify-content-center">
-                <div class="col-5">
-                    <input id="file-selector" class="form-control" accept="image/png, image/jpeg" name="image" type="file"> <small class="form-text text-muted">Maximum image size is 5MB.</small>
-                </div>
-            </div>
-            <div class="m-4 row justify-content-center">
-                <!-- Firefox does not seem to respect minimum width requirements with btn-block, so we can set the value as an override-->
-                <div class="col-2">
-                    <input class="btn btn-secondary btn-lg form-buttons" type="reset" value="Clear">
-                </div>
-                <div class="col-2">
-                    <input class="btn btn-primary btn-lg form-buttons" type="submit" value="Submit">
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
+    <div id="root"></div>
+    <script type="module" src="./src/main.tsx"></script>
 
-<!-- BOOTSTRAP BUNDLE -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+    <!-- BOOTSTRAP BUNDLE -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
 </body>
 </html>
