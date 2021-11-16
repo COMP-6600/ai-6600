@@ -23,8 +23,8 @@ python-multipart = "^0.0.5"
 Pillow = "^8.3.2"
 sentry-sdk = "^1.4.3"
 numpy = "^1.21.4"
-tensorflow = "^2.7.0"
 opencv-python = "^4.5.4"
+tensorflow-cpu = "^2.7.0"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.910"
