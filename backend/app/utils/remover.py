@@ -6,13 +6,13 @@ Created on Tue Nov 16 04:48:32 2021
 """
 import sys
 import numpy as np 
-import matplotlib.pyplot as plt 
+#import matplotlib.pyplot as plt 
 import tensorflow as tf 
 from tensorflow import keras
 from keras.models import Model
-from keras.layers import Conv2D, MaxPooling2D, Dense, Input, Conv2D, UpSampling2D, BatchNormalization
-from tensorflow.keras.optimizers import Adam
-from keras.callbacks import EarlyStopping
+#from keras.layers import Conv2D, MaxPooling2D, Dense, Input, Conv2D, UpSampling2D, BatchNormalization
+#from tensorflow.keras.optimizers import Adam
+#from keras.callbacks import EarlyStopping
 import cv2
 import os 
 
@@ -39,7 +39,6 @@ container.shape
 
 reconstructed_model = keras.models.load_model(modelName)
 result = reconstructed_model.predict(container)
-plt.imshow(result[0])
 
 
 cv2.imwrite(outPath + inFile, (cv2.cvtColor(result[0], cv2.COLOR_BGR2RGB))*255)
