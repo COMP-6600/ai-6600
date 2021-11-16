@@ -14,7 +14,7 @@ export function ImagePreview({originalImageData, processedImageData} : {original
         <Spacer/>
         <SimpleGrid justifyItems="center">
           <Heading padding="4" fontFamily="Montserrat, sans-serif" fontSize="2.3em">Processed Image</Heading>
-          <Image width="calc(100vw / 3.2)" fit="fill" src={URL.createObjectURL(processedImageData)}/>
+          <Image width="calc(100vw / 3.2)" fit="fill" src={processedImageData}/>
         </SimpleGrid>
       </Flex>
     </>

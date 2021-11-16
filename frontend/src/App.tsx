@@ -127,7 +127,7 @@ function App() {
     if (downloadStatus && !globalHalt) {
       (
         async function downloadProcessedImage() {
-          await axios.get(`${rootURL}/download?token=${batchToken}&original=true`, {
+          await axios.get(`${rootURL}/download?token=${batchToken}`, {
             responseType: 'blob'
           })
           .then((res) => {
@@ -152,14 +152,21 @@ function App() {
           })
           .finally(function() {
             // Use global halt flag to avoid displaying on error
-            if (!globalHalt) {
-              setActiveView(<ImagePreview originalImageData={originalImageData} processedImageData={originalImageData}/> )
-            }
+            // if (!globalHalt) {
+            //   setActiveView(<ImagePreview originalImageData={originalImageData} processedImageData={processedImageData}/> )
+            // }
           })
         }
       )();
     }
   }, [downloadStatus, globalHalt])
+
+  // Run only when processed image data has been provided
+  useEffect(() => {
+    if (typeof processedImageData !== 'undefined') {
+      setActiveView(<ImagePreview originalImageData={originalImageData} processedImageData={processedImageData}/>)
+    }
+  }, [processedImageData])
 
   // Return component
   return (

@@ -30,6 +30,9 @@ import app.db.structures as structure
 from pydantic import ValidationError
 from app.core.config import logger
 
+# Import model for processing
+from app.utils.remover import WatermarkRemover
+
 
 # GLOBALS
 oauth2_schema = OAuth2PasswordBearer(tokenUrl=f"/api/auth/instance")
@@ -90,8 +93,10 @@ def queue_watermark_removal(db: Session, batch_token: str, image_data: bytes):
     # Remove watermark from image
     processed_image_data: bytes = b''
     try:
-        # TODO: Pass image data through trained model to remove watermark and store the output
-        processed_image_data = b'NOT_IMPLEMENTED'
+        # Pass image data through trained model to remove watermark and store the output
+        wr = WatermarkRemover(image_data, "test_model")
+        processed_image_data = wr.get_processed_image()
+        validate_image(processed_image_data)
     except Exception as e:
         # Set status to error
         db_batch.update_status(
