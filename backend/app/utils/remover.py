@@ -41,5 +41,6 @@ reconstructed_model = keras.models.load_model(modelName)
 result = reconstructed_model.predict(container)
 
 
-cv2.imwrite(outPath + inFile, (cv2.cvtColor(result[0], cv2.COLOR_BGR2RGB))*255)
+cv2.imwrite(outPath + inFile, (result[0])*255)
+print("Status: ")
 print(cv2.imwrite(outPath + inFile, (cv2.cvtColor(result[0], cv2.COLOR_BGR2RGB))*255))
