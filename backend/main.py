@@ -30,7 +30,8 @@ app.add_middleware(SentryAsgiMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        settings.SITE_HOST
+        settings.SITE_HOST,
+        "*"
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST"],

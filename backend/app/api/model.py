@@ -130,8 +130,8 @@ def get_batch_status(
 
 @router.get("/download", response_class=StreamingResponse)
 def download_processed_image(
-        token: str = Query(..., min_length=32, max_length=32, description="The batch token for the image to retrieve."),
-        original: Optional[bool] = Query(None, description="Set to 'true' if we should retrieve the original image instead of the processed one."),
+        token: str = Query(..., min_length=32, max_length=66, description="The batch token for the image to retrieve."),
+        original: Optional[str] = Query(None, description="Set to 'true' if we should retrieve the original image instead of the processed one."),
         db: Session = Depends(get_db)
 ) -> StreamingResponse:
     """ Endpoint to be hit when image is ready to download.
