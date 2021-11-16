@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Button
 } from '@chakra-ui/react';
@@ -6,6 +6,10 @@ import {
 export function Upload({ setSubmitted, setImageData }: { setSubmitted: any, setImageData: any }): JSX.Element {
   const [loading, setLoading] = useState<boolean>(false);
 
+  function initiateRequest() {
+    setLoading(true);
+    setSubmitted(true)
+  }
 
   return (
     <form action="#" encType="multipart/form-data" method="post" id="formCont">
@@ -32,13 +36,13 @@ export function Upload({ setSubmitted, setImageData }: { setSubmitted: any, setI
             isFullWidth={true}
           >
             Clear
-          </Button>                        
+          </Button>
         </div>
         <div className="col-2">
           <Button
             size="lg"
             colorScheme="green"
-            onClick={() => setSubmitted(true)}
+            onClick={() => initiateRequest()}
             type="button"
             isFullWidth={true}
             isLoading={loading}

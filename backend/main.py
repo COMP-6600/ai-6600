@@ -46,7 +46,7 @@ app.include_router(AUTH_ROUTER)
 app.include_router(MODEL_ROUTER)
 
 # Mount static directory to serve directly within html
-app.mount("/static", StaticFiles(directory=str(settings.STATIC_PATH)), name="static")
+app.mount("/assets", StaticFiles(directory=str(settings.STATIC_PATH)), name="assets")
 templates = Jinja2Templates(directory=str(settings.FRONTEND_PATH))
 
 

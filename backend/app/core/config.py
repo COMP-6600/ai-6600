@@ -25,8 +25,8 @@ class Settings(BaseSettings):
     if env.get("HOME") is not None:
         ROOT_PATH = Path(env.get("HOME"))
     BACKEND_PATH: Path = ROOT_PATH / "backend"
-    FRONTEND_PATH: Path = ROOT_PATH / "frontend"
-    STATIC_PATH: Path = FRONTEND_PATH / "static"
+    FRONTEND_PATH: Path = ROOT_PATH / "frontend" / "dist"
+    STATIC_PATH: Path = FRONTEND_PATH / "assets"
     UPLOAD_PATH: Path = ROOT_PATH / "upload"
 
     # Configuration

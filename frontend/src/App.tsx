@@ -1,30 +1,44 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 import axios from 'axios';
+import { ChakraProvider, useToast } from '@chakra-ui/react';
 import { Upload } from './Upload'
 import { ImagePreview } from './ImagePreview';
 import { Status } from './Status';
-import { ChakraProvider } from '@chakra-ui/react';
 const rootURL = import.meta.env.VITE_DOMAIN;
 
 function App() {
-  const [batchToken, setbatchToken] = useState<string>();
+  // Interval timer for request sending
+  const [pollIntervalTick, setPollIntervalTick] = useState<Date>();
+
+  // Flags
+  const [batchToken, setBatchToken] = useState<string>();
+  const [submitted, setSubmitted] = useState<boolean>(false);
+  const [downloadStatus, setDownloadStatus] = useState<boolean>(false);
   const [processStatus, setProcessStatus] = useState<string>('');
   const [processStatusDetail, setProcessStatusDetail] = useState<string>('');
-  const [downloadStatus, setDownloadStatus] = useState<boolean>(false);
-  const [processedImage, setProcessedImage] = useState<any>();
-  const [pollIntervalTick, setPollIntervalTick] = useState<Date>();
-  const [submitted, setSubmitted] = useState<boolean>(false);
-  const [imageData, setImageData] = useState<any>();
+  const [processStatusOpen, setProcessStatusOpen] = useState<boolean>(false)
+  const [secondsElapsed, setSecondsElapsed] = useState<number>(-1);
+  const [globalHalt, setGlobalHalt] = useState<boolean>(false)
+
+  // Images
+  const [originalImageData, setOriginalImageData] = useState<any>();
+  const [processedImageData, setProcessedImage] = useState<any>();
+
+  // View
   const [activeView, setActiveView] = useState<JSX.Element>(
-    <Upload setSubmitted={setSubmitted} setImageData={setImageData}/>
-    //<ImagePreview originalImageData={} processedImageData={}>
+    <Upload setSubmitted={setSubmitted} setImageData={setOriginalImageData}/>
   )
 
+  // Global Toast
+  const toast = useToast();
 
   // Declare a time interval we want to run. Adapted from Zahra Shahrouzi @ https://stackoverflow.com/questions/39426083/update-react-component-every-second/59861536
   useEffect(() => {
-    const pollInterval = setInterval(() => setPollIntervalTick(new Date()), 3000);
+    const pollInterval = setInterval(() =>
+      setPollIntervalTick(
+        new Date()), 1000
+    );
     return () => {
       clearInterval(pollInterval);
     };
@@ -32,32 +46,50 @@ function App() {
 
   // Submit image and wait for batch ticket
   useEffect(() => {
-    if (submitted && typeof imageData !== 'undefined') {
+    if (submitted && typeof originalImageData !== 'undefined' && !globalHalt) {
       const data = new FormData();
-      data.append("image", imageData);
-      console.log("submitting image");
+      data.append("image", originalImageData);
       (
         async function sendImage() {
           await axios.post(`${rootURL}/upload`, data)
           .then(function (res) {
             // Capture batch token
-            setbatchToken(res.data.batch_token);
+            setBatchToken(res.data.batch_token);
           })
           .catch(function(err) {
-            // TODO: Pop error toast
+            // Pop toast with error
             console.log(err);
+            (() =>
+              toast({
+                title: "Error",
+                description: "There was an error submitting the image for processing.",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+              })
+            )();
+            setGlobalHalt(true);
           })
           .finally(function() {})
         }
       )();
     }
-  }, [imageData, submitted])
+  }, [originalImageData, submitted, globalHalt])
 
   // Request status to receive a reply when processing is complete
   useEffect(() => {
-    if (batchToken !== undefined && batchToken.length > 1 && !downloadStatus) {
+    if (batchToken !== undefined && batchToken.length > 1 && !downloadStatus && !globalHalt) {
       (
         async function getStatus() {
+          // Pop open status windows and initialize values
+          if (secondsElapsed === -1) {
+            setProcessStatus("Queued");
+            setProcessStatusDetail("The image is in line for processing.");
+          }
+          setSecondsElapsed(secondsElapsed + 1);
+          setProcessStatusOpen(true)
+
+          // Request status continually and update values
           await axios.get(`${rootURL}/batch?token=${batchToken}`)
           .then(function (res) {
             setProcessStatus(res.data.status);
@@ -66,43 +98,70 @@ function App() {
             // Stop checking if processing was successful
             if (res.data.status === 'completed') {
               setDownloadStatus(true);
+              setProcessStatus("Downloading");
+              setProcessStatusDetail("The processed image is now being downloaded.");
             }
           })
           .catch(function(err) {
+            // Pop toast with error
+            setProcessStatusOpen(false);
             console.log(err);
-          })
-          .finally(function() {
-            console.log(`batch status checked at ${pollIntervalTick}`);
+            (() =>
+              toast({
+                title: "Error",
+                description: "There was an error requesting the processing status.",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+              })
+            )();
+            setGlobalHalt(true);
           })
         }
       )();
     }
-  }, [batchToken, pollIntervalTick, downloadStatus])
+  }, [batchToken, pollIntervalTick, downloadStatus, globalHalt])
 
   // After success message, request download
   useEffect(() => {
-    if (downloadStatus) {
+    if (downloadStatus && !globalHalt) {
       (
-        async function downloadImage() {
+        async function downloadProcessedImage() {
           await axios.get(`${rootURL}/download?token=${batchToken}&original=true`, {
             responseType: 'blob'
           })
           .then((res) => {
-            // TODO: Display downloading spinner
+            // Display downloading spinner
+            setProcessStatusOpen(false);
             setProcessedImage(URL.createObjectURL(res.data));
           })
           .catch(function(err: any) {
-            // TODO: Pop toast with error
+            // Pop toast with error
+            setProcessStatusOpen(false);
             console.log(err);
+            (() =>
+              toast({
+                title: "Error",
+                description: "There was an error downloading the processed image.",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+              })
+            )();
+            setGlobalHalt(true);
           })
           .finally(function() {
-            setActiveView(<ImagePreview originalImageData={imageData} processedImageData={imageData}/> )
+            // Use global halt flag to avoid displaying on error
+            if (!globalHalt) {
+              setActiveView(<ImagePreview originalImageData={originalImageData} processedImageData={originalImageData}/> )
+            }
           })
         }
       )();
     }
-  }, [downloadStatus])
+  }, [downloadStatus, globalHalt])
 
+  // Return component
   return (
     <ChakraProvider>
       <div className="d-flex flex-column min-vh-100 container justify-content-center" id="body">
@@ -113,7 +172,7 @@ function App() {
               </div>
            </div>
             {activeView}
-            {/* <Status /> */}
+            <Status status={processStatus} detail={processStatusDetail} secondsElapsed={secondsElapsed} popOpen={processStatusOpen}/>
         </div>
       </div>
     </ChakraProvider>
