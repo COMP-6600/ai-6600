@@ -15,9 +15,7 @@ from tensorflow.keras.optimizers import Adam
 from keras.callbacks import EarlyStopping
 import cv2
 import os 
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from sklearn.model_selection import train_test_split
-import random
+
 
 ## PARSER
 n = len(sys.argv)
