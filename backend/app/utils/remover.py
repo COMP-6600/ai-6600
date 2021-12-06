@@ -32,7 +32,7 @@ class WatermarkRemover:
 
     def parse_image(self):
         image = cv2.imdecode(self._original_image, cv2.IMREAD_COLOR)
-        return np.array([cv2.resize(image, (196, 196))]) / 255
+        return np.array([cv2.resize(image, (300, 300))]) / 255
 
     def process_image(self):
         reconstructed_model = keras.models.load_model(str(self._model))
