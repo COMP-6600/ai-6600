@@ -17,3 +17,31 @@ There are two virtual environments for this program, one is for the frontend and
 - To install using poetry, run ```poetry install```
 - To run the backend, ensure the appropriate environment variables have been loaded for it and the frontend has been built, then ```cd backend``` and ```poetry run python -m main.py```
 - The application should be served on localhost port 5000
+
+### AI Model Training
+- Trains and utilizes a deep learning model for removing watermarks from watermarked images.
+- Uses Generative Adversarial Networks with an auto-encoder model.
+- Images are cropped to 300x300 for memory limitations.
+
+### Instructions for Training
+- Either edit data location in code, or,
+- Place data in dataset2/train/watermark for watermarked images, dataset2/train/no-watermark for non-watermarked images.
+- Use provided .ipnyb to train the model.
+
+
+- For Input/Output, place images into the IO folder, into the Input for input images.
+- Run remover.py
+
+### Requirements
+- Python3.x
+- tensorflow
+- keras
+- opencv2
+- pandas
+- numpy
+- matplotlib
+- sklearn
+- pillow
+
+### Dataset
+- Datased used: https://www.kaggle.com/felicepollano/watermarked-not-watermarked-images
